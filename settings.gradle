@@ -1,0 +1,10 @@
+rootProject.name = 'conferences'
+
+include "conferences-domain"
+include "conferences-api"
+include "conferences-impl"
+include "conferences-rest-springmvc"
+include "conferences-rest-jersey"
+include "conferences-storage-jpa"
+include "conferences-storage-mongodb"
+include "springboot-deployment"

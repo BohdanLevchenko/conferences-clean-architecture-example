@@ -1,0 +1,108 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.6.RELEASE")
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.0.RELEASE"
+    }
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "idea"
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        testCompile("junit:junit:4.12")
+        testCompile 'org.assertj:assertj-core:3.6.1'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "io.spring.platform:platform-bom:2.0.8.RELEASE"
+        }
+    }
+}
+project(":conferences-domain") {}
+project(":conferences-api") {}
+
+project(":conferences-impl") {
+    dependencies {
+        compile project(":conferences-domain")
+        compile project(":conferences-api")
+        compile 'javax.transaction:javax.transaction-api:1.2'
+        compile 'javax.inject:javax.inject:1'
+    }
+}
+
+project(":conferences-storage-jpa") {
+    dependencies {
+        compile project(":conferences-domain")
+        compile 'javax.inject:javax.inject:1'
+        compile "org.springframework.data:spring-data-jpa"
+        compile "org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final"
+    }
+}
+
+project(":conferences-storage-mongodb") {
+    dependencies {
+        compile project(":conferences-domain")
+        compile 'javax.inject:javax.inject:1'
+        compile "org.mongodb.morphia:morphia:1.2.1"
+    }
+}
+project(":conferences-rest-springmvc") {
+    dependencies {
+        compile project(":conferences-api")
+        compile 'javax.inject:javax.inject:1'
+
+        compile "org.springframework:spring-webmvc"
+        compile "com.fasterxml.jackson.core:jackson-databind"
+        compile "org.modelmapper:modelmapper:1.0.0"
+
+        testCompile "javax.servlet:javax.servlet-api:3.1.0"
+        testCompile "commons-logging:commons-logging:1.2"
+    }
+}
+
+project(":conferences-rest-jersey") {
+    dependencies {
+        compile project(":conferences-api")
+        compile 'javax.inject:javax.inject:1'
+
+        compile "com.fasterxml.jackson.core:jackson-databind"
+        compile "org.glassfish.jersey.core:jersey-server"
+
+        testCompile "javax.servlet:javax.servlet-api:3.1.0"
+        testCompile "commons-logging:commons-logging:1.2"
+    }
+}
+
+project(":springboot-deployment") {
+    apply plugin: "spring-boot"
+
+    dependencies {
+        compile project(":conferences-domain")
+        compile project(":conferences-api")
+        compile project(":conferences-impl")
+        compile project(":conferences-storage-jpa")
+        compile project(":conferences-rest-springmvc")
+
+        compile "org.springframework.boot:spring-boot-starter-web"
+        compile "org.springframework.boot:spring-boot-actuator"
+        compile "org.springframework.boot:spring-boot-starter-data-jpa"
+
+        compile "com.h2database:h2"
+    }
+}
